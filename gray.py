@@ -26,7 +26,7 @@ class Marble:
         return result_img
 
 
-# img = cv2.imread("./data/model/toon.png", -1)
+# img = cv2.imread("./data/model/kyufu1.png", -1)
 # # αチャンネルが0となるインデックスを取得
 # # ex) ([0, 1, 3, 3, ...],[2, 4, 55, 66, ...])
 # # columnとrowがそれぞれ格納されたタプル(長さ２)となっている
@@ -34,10 +34,10 @@ class Marble:
 # # 白塗りする
 # img[index] = [255, 255, 255, 255]
 # # 出力
-# cv2.imwrite("data/model/model1.png", img)
+# cv2.imwrite("data/model/4-kyufu.png", img)
 if __name__ == "__main__":
-    PATH = "./data/model/toon2.png"
+    PATH = "./data/model/4-kyufu.png"
     img = cv2.cvtColor(cv2.imread(PATH), cv2.COLOR_BGR2GRAY)
     # しきい値指定によるフィルタリング
     retval, dst = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY)
-    cv2.imwrite('data/model/model1.png', dst)
+    cv2.imwrite('data/model/4-kyufu.png', dst)

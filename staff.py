@@ -1,3 +1,4 @@
+from os import dup
 import cv2
 import numpy as np
 
@@ -167,28 +168,52 @@ class Staff:
         mask = np.zeros((mask_margin_v, mask_margin_h), dtype=np.uint8)
         margin_vr = mask_margin_v // 2
         margin_hr = mask_margin_h // 2
-        cv2.ellipse(mask, box=((margin_hr, margin_vr), (int(mask_margin_v * 1), int(mask_margin_v * 0.6)), 315), color=255, thickness=-1)
+        cv2.ellipse(mask, box=((margin_hr, margin_vr), (int(mask_margin_v * 1.2), int(mask_margin_v * 0.8)), -30), color=255, thickness=-1)
+        mask_circle = mask.copy()
+        cv2.ellipse(mask_circle, box=((margin_hr, margin_vr), (int(mask_margin_v * 1.2), int(mask_margin_v * 0.5)), -40), color=0, thickness=-1)
+        mask_circle_center = np.zeros((mask_margin_v, mask_margin_h), dtype=np.uint8)
+        cv2.ellipse(mask_circle_center, box=((margin_hr, margin_vr), (int(mask_margin_v * 1), int(mask_margin_v * 0.4)), -40), color=255, thickness=-1)
+        mask_circle_center = cv2.line(mask_circle_center, (0, margin_hr // 2), (margin_vr, margin_hr // 2), 0, 1)
         cv2.imwrite('data/dst/test2.png', mask)
+        cv2.imwrite('data/dst/test4.png', mask_circle)
 
         lists = []
         for y in scan_y:
-            lists.append(self.scan_marble_on_horizon(img, w, y[0], y[1], mask, margin_vr, margin_hr))
+            lists.append(self.scan_marble_on_horizon(img, w, y[0], y[1], mask, mask_circle, mask_circle_center, margin_vr, margin_hr))
 
         return [scan_y, lists, self.margin_staff]
 
 
-    def scan_marble_on_horizon(self, img, w, y, no, mask, margin_vr, margin_hr):
-        list_ = []
+    def scan_marble_on_horizon(self, img, w, y, no, mask, mask_circle, mask_circle_center, margin_vr, margin_hr):
+        list_marble = []
+        i = margin_hr
+        # while i < w - margin_hr:
         for i in range(margin_hr, w - margin_hr):
             if img[y, i] == 0:
-                for j in range(-1, 2):
+                for j in range(-2, 3):
                     img_p = img[y - margin_vr + j: y + margin_vr + 1 + j, i - margin_hr: i + margin_hr + 1]
-                    img_p = img_p & mask
-                    if np.count_nonzero(img_p == 255) <= img_p.size // 100 and self.concrete_extend_marble(img, i, no):
-                        list_.append(i)
+                    img_judge = img_p & mask
+                    if np.count_nonzero(img_judge == 255) <= img_judge.size // 100 and self.concrete_extend_marble(img, i, no):
+                        list_marble.append([i, 4])
+                        break
+                    else:
+                        img_judge = img_p & mask_circle
+                        img_judge2 = cv2.bitwise_not(img_p) & mask_circle_center
+                        if np.count_nonzero(img_judge == 255) <= img_judge.size // 100 and np.count_nonzero(img_judge2 == 255) <= img_judge2.size // 10 and self.concrete_extend_marble(img, i, no):
+                            list_marble.append([i, 2])
+                            break
+            else:
+                for j in range(-2, 3):
+                    img_p = img[y - margin_vr + j: y + margin_vr + 1 + j, i - margin_hr: i + margin_hr + 1]
+                    img_judge = img_p & mask_circle
+                    img_judge2 = cv2.bitwise_not(img_p) & mask_circle_center
+                    if np.count_nonzero(img_judge == 255) <= img_judge.size // 100 and np.count_nonzero(img_judge2 == 255) <= img_judge2.size // 10 and self.concrete_extend_marble(img, i, no):
+                        list_marble.append([i, 2])
                         break
 
-        return list_
+        list_marble = self.combine_duplicate_marble(list_marble, margin_vr)
+
+        return list_marble
 
 
     def concrete_extend_marble(self, img, x, no):
@@ -210,3 +235,30 @@ class Staff:
                 return False
 
         return True
+
+    def combine_duplicate_marble(self, marble_list, margin_vr):
+        duplicate_list = []
+        result_list = []
+        for item in marble_list:
+            if duplicate_list == []:
+                duplicate_list.append(item)
+                continue
+            if item[0] - duplicate_list[-1][0] < margin_vr:
+                duplicate_list.append(item)
+            else:
+                result_list.append(self.find_max_type(duplicate_list))
+                duplicate_list = []
+        if len(duplicate_list) > 0:
+            result_list.append(self.find_max_type(duplicate_list))
+
+        return result_list
+
+    def find_max_type(self, duplicate_list):
+        type_max = 2
+        for item in duplicate_list:
+            if item[1] > 2:
+                type_max = item[1]
+
+        return [duplicate_list[len(duplicate_list) // 2][0], type_max]
+
+

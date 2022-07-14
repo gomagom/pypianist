@@ -15,22 +15,28 @@ class Marble:
         matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck = False)
 
         toon_img = cv2.cvtColor(cv2.imread("./data/model/m138.png"), cv2.COLOR_BGR2GRAY)
-        _, toon = detector.detectAndCompute(cv2.cvtColor(cv2.imread("./data/model/m138.png"), cv2.COLOR_BGR2GRAY), None)
+        _, toon = detector.detectAndCompute(cv2.cvtColor(cv2.imread("./data/model/m78.png"), cv2.COLOR_BGR2GRAY), None)
 
 
         for i, contour in enumerate(contours):
             # 小さな領域の場合は間引く
             area = cv2.contourArea(contour)
-            if area < 500:
+            if area < 50:
                 continue
             # 画像全体を占める領域は除外する
             if self.img_size * 0.99 < area:
                 continue
             # 外接矩形を取得
             x,y,w,h = cv2.boundingRect(contour)
+            if w < 10 or h < 10:
+                continue
             # 外接矩形で囲まれた箇所のイメージを切り出し
-            result_img = cv2.rectangle(result_img, (x, y), (x + w, y + h), (0, 255, 0), 3)
             cut = self.img[y:y+h, x:x+w]
+            height = 512
+            width = round(w * (height / h))
+            cut = cv2.resize(cut, dsize=(width, height), interpolation=cv2.INTER_CUBIC)
+            retval, cut = cv2.threshold(cut, 128, 255, cv2.THRESH_BINARY)
+            # cv2.imwrite(f'data/model/m{i}.png', cut)
             _, des_orb = detector.detectAndCompute(cut, None)
             # 特徴量検出機を作成し解析
             matches = matcher.match(des_orb, toon)
@@ -41,7 +47,7 @@ class Marble:
             ret = sum(dist) / len(dist)
             print(ret)
             # 少ないほど一致
-            if ret < 100:
+            if ret < 40:
                 result_img = cv2.rectangle(result_img, (x, y), (x + w, y + h), (255, 0, 0), 3)
             else:
                 result_img = cv2.rectangle(result_img, (x, y), (x + w, y + h), (0, 255, 0), 3)

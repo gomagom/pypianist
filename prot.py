@@ -35,8 +35,13 @@ class Prot:
                 margin = int(i2[2]) if int(i2[2] % 2) else int(i2[2]) + 1
                 flg = 0 if flg else 1
                 for j1, j2 in zip(i2[0], i2[1]):
-                    color_ = [(0, 255, 255), (255, 255, 0)]
+                    
                     for j3 in j2:
-                        cv2.ellipse(self.img_rgb, box=((j3, j1[0]), (int(margin * 1), int(margin * 0.6)), 315), color=color_[flg], thickness=-1)
+                        if j3[1] <= 2:
+                            color_ = [(0, 255, 128), (255, 128, 0)]
+                            cv2.ellipse(self.img_rgb, box=((j3[0], j1[0]), (int(margin * 1.2), int(margin * 0.8)), -30), color=color_[flg], thickness=-1)
+                        else:
+                            color_ = [(0, 255, 255), (255, 255, 0)]
+                            cv2.ellipse(self.img_rgb, box=((j3[0], j1[0]), (int(margin * 1.2), int(margin * 0.8)), -30), color=color_[flg], thickness=-1)
 
         cv2.imwrite('data/dst/marble.png', self.img_rgb)
