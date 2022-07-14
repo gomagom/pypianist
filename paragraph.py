@@ -14,10 +14,11 @@ class Paragraph:
 
 
     def search_marble_f1(self, img, top_p, bottom_p):
-        result = []
-        for idx, item in enumerate(self.staff):
+        # result = []
+        for idx in range(len(self.staff)):
             top = top_p if idx == 0 else self.staff[idx - 1].bottom
             bottom = bottom_p if idx == len(self.staff) - 1 else self.staff[idx + 1].top
-            result.append(item.search_marble_f1(img, top, bottom))
+            # result.append(item.search_marble_f1(img, top, bottom))
+            self.staff[idx].search_marble_f1(img, top, bottom)
 
-        return result
+        # return result

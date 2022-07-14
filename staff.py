@@ -1,4 +1,3 @@
-from os import dup
 import cv2
 import numpy as np
 
@@ -9,7 +8,8 @@ class Staff:
         self.margin_staff, self._margin_list = self.margin_ave(data)
         self.top = self.staff_lines[0]["center"]
         self.bottom = self.staff_lines[-1]["center"]
-
+        self.marble_list = []
+        self.group_line_y = []
 
     def margin_ave(self, data):
         margin = [data[i + 1]["center"] - data[i]["center"] for i in range(len(data) - 1)]
@@ -177,30 +177,33 @@ class Staff:
         cv2.imwrite('data/dst/test2.png', mask)
         cv2.imwrite('data/dst/test4.png', mask_circle)
 
-        lists = []
+        marbles_on_staff = []
         for y in scan_y:
-            lists.append(self.scan_marble_on_horizon(img, w, y[0], y[1], mask, mask_circle, mask_circle_center, margin_vr, margin_hr))
+            marbles_on_staff.extend(self.scan_marble_on_horizon(img, w, int(y[0]), int(y[1]), mask, mask_circle, mask_circle_center, margin_vr, margin_hr))
 
-        return [scan_y, lists, self.margin_staff]
-
+        self.marble_list = marbles_on_staff
+        self.grouping_marble()
+        self.judge_marble_type(img)
+        print(self.marble_list)
+        # return [scan_y, marbles_on_staff, self.margin_staff]
 
     def scan_marble_on_horizon(self, img, w, y, no, mask, mask_circle, mask_circle_center, margin_vr, margin_hr):
         list_marble = []
-        i = margin_hr
+        # i = margin_hr
         # while i < w - margin_hr:
         for i in range(margin_hr, w - margin_hr):
-            if img[y, i] == 0:
+            if img.item(y, i) == 0:
                 for j in range(-2, 3):
                     img_p = img[y - margin_vr + j: y + margin_vr + 1 + j, i - margin_hr: i + margin_hr + 1]
                     img_judge = img_p & mask
                     if np.count_nonzero(img_judge == 255) <= img_judge.size // 100 and self.concrete_extend_marble(img, i, no):
-                        list_marble.append([i, 4])
+                        list_marble.append([(i, y), 4, no])
                         break
                     else:
                         img_judge = img_p & mask_circle
                         img_judge2 = cv2.bitwise_not(img_p) & mask_circle_center
                         if np.count_nonzero(img_judge == 255) <= img_judge.size // 100 and np.count_nonzero(img_judge2 == 255) <= img_judge2.size // 10 and self.concrete_extend_marble(img, i, no):
-                            list_marble.append([i, 2])
+                            list_marble.append([(i, y), 2, no])
                             break
             else:
                 for j in range(-2, 3):
@@ -208,7 +211,7 @@ class Staff:
                     img_judge = img_p & mask_circle
                     img_judge2 = cv2.bitwise_not(img_p) & mask_circle_center
                     if np.count_nonzero(img_judge == 255) <= img_judge.size // 100 and np.count_nonzero(img_judge2 == 255) <= img_judge2.size // 10 and self.concrete_extend_marble(img, i, no):
-                        list_marble.append([i, 2])
+                        list_marble.append([(i, y), 2, no])
                         break
 
         list_marble = self.combine_duplicate_marble(list_marble, margin_vr)
@@ -227,7 +230,7 @@ class Staff:
                 pos += length
             else:
                 pos -= length
-            img_p = img[round(pos) - 1: round(pos) + 2, x - int(length // 2): x + int(length // 2)]
+            img_p = img[int(round(pos)) - 1: int(round(pos)) + 2, x - int(length // 2): x + int(length // 2)]
             flg = False
             for item in img_p:
                 flg = True if not np.count_nonzero(item == 255) else flg
@@ -243,7 +246,7 @@ class Staff:
             if duplicate_list == []:
                 duplicate_list.append(item)
                 continue
-            if item[0] - duplicate_list[-1][0] < margin_vr:
+            if item[0][0] - duplicate_list[-1][0][0] < margin_vr:
                 duplicate_list.append(item)
             else:
                 result_list.append(self.find_max_type(duplicate_list))
@@ -259,6 +262,99 @@ class Staff:
             if item[1] > 2:
                 type_max = item[1]
 
-        return [duplicate_list[len(duplicate_list) // 2][0], type_max]
+        return [duplicate_list[len(duplicate_list) // 2][0], type_max, duplicate_list[len(duplicate_list) // 2][2]]
 
+    # 同時に鳴る音符をグループ化(縦に並んでいる玉をまとめる)
+    def grouping_marble(self):
+        grouped_marbel_list = []
+        thresh = self.margin_staff * 1.5
+        while self.marble_list:
+            top_marble = self.marble_list.pop(0)
+            group = [top_marble]
+            group_idx = []
+            for i, marble in enumerate(self.marble_list):
+                if abs(top_marble[0][0] - marble[0][0]) <= thresh:
+                    group.append(marble)
+                    group_idx.append(i)
+            self.marble_list = [item for idx, item in enumerate(self.marble_list) if idx not in group_idx]
+            grouped_marbel_list.append(group)
+
+        grouped_marbel_list = sorted(grouped_marbel_list, key=lambda x: x[0][0])
+        self.marble_list = grouped_marbel_list
+
+    def judge_marble_type(self, img):
+        judge_area_width = int(self.margin_staff * 1.5)
+        judge_area_height = int(self.margin_staff * 1.5)
+        marble_type = [4, 8, 16]
+        for i, group in enumerate(self.marble_list):
+            direction = -1
+            top_marble = group[0]
+            if top_marble[1] <= 2:
+                continue
+            start_x = top_marble[0][0] - judge_area_width // 2
+            start_y = top_marble[0][1] - int(self.margin_staff // 2) - judge_area_height
+            cut = img[start_y:start_y+judge_area_height, start_x:start_x+judge_area_width]
+            line_list = self.find_marble_line(cut, start_x)
+            if line_list == []:
+                direction = 1
+                bottom_marble = group[-1]
+                start_y = bottom_marble[0][1] + int(self.margin_staff // 2)
+                cut = img[start_y:start_y+judge_area_height, start_x:start_x+judge_area_width]
+                line_list = self.find_marble_line(cut, start_x)
+                if not line_list:
+                    return
+
+            line_edge_y = self.calc_marble_line_edge_y(img, line_list, start_y, direction)
+            self.group_line_y.append((line_list[len(line_list) // 2], line_edge_y))
+            marble_flag_num = self.check_marble_flag(img, line_list, line_edge_y, direction)
+            for j in range(len(group)):
+                self.marble_list[i][j][1] = marble_type[marble_flag_num]
+
+    def find_marble_line(self, img_cut, x):
+        result = []
+        h, w = img_cut.shape[:2]
+        for i in range(w):
+            part = img_cut[0:h, i:i+1]
+            if np.size(part) - np.count_nonzero(part) > np.size(part) * 9 / 10:
+                result.append(x + i)
+
+        return result
+
+    def calc_marble_line_edge_y(self, img, line_list, y, direction=1):
+        start_line_x = line_list[0]
+        line_edge_y = y
+        while True:
+            next_y = line_edge_y + direction
+            cut = img[next_y:next_y+1, start_line_x:start_line_x+len(line_list)]
+            if np.count_nonzero(cut) == np.size(cut):
+                break
+            line_edge_y += direction
+        
+        return line_edge_y
+
+    def check_marble_flag(self, img, line_list, line_edge_y, direction=1):
+        zone_height = int(self.margin_staff * 2)
+        lines_pair = [line_list[0] - 3, line_list[-1] + 3]
+        if direction == 1:
+            zone_start_y = line_edge_y - int(self.margin_staff * 1.5)
+        else:
+            zone_start_y = line_edge_y - int(self.margin_staff // 2)
+        check_zone = [img[zone_start_y:zone_start_y+zone_height, lines_pair[0]:lines_pair[0]+1], img[zone_start_y:zone_start_y+zone_height, lines_pair[1]:lines_pair[1]+1]]
+
+        count_max = 0
+        for zone in check_zone:
+            combo = 0
+            count = 0
+            for dot in zone:
+                if dot[0] == 0:
+                    combo += 1
+                else:
+                    combo = 0
+                if combo == int(self.margin_staff // 6):
+                    count += 1
+
+            if count_max < count:
+                count_max = count
+
+        return count_max
 

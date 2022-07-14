@@ -13,8 +13,8 @@ def main():
     prot.export_img(imgs)
     prot.paragraph(paragraph_data, imgs[1])
 
-    marbles = score.labeling(pitch)
-    prot.marbles(marbles)
+    score.labeling(pitch)
+    prot.marbles(score)
 
 
 if __name__ == '__main__':

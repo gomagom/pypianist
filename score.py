@@ -44,9 +44,9 @@ class Score:
         cv2.imwrite('data/dst/test.png', self._img2)
 
         self._img3 = self._img2.copy()
-        result = []
-        for idx, item in enumerate(self.paragraph):
+        for idx in range(len(self.paragraph)):
             top = 0 if idx == 0 else self.paragraph[idx - 1].bottom
             bottom = self.height if idx == len(self.paragraph) - 1 else self.paragraph[idx + 1].top
-            result.append(item.search_marble_f1(self._img3, top, bottom))
-        return result
+            # result.append(item.search_marble_f1(self._img3, top, bottom))
+            self.paragraph[idx].search_marble_f1(self._img3, top, bottom)
+        # return result

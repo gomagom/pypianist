@@ -28,20 +28,37 @@ class Prot:
         cv2.imwrite('data/dst/paragraph.png', self.img_rgb)
 
 
-    def marbles(self, marbles):
-        flg = 0
-        for i1 in marbles:
-            for i2 in i1:
-                margin = int(i2[2]) if int(i2[2] % 2) else int(i2[2]) + 1
-                flg = 0 if flg else 1
-                for j1, j2 in zip(i2[0], i2[1]):
-                    
-                    for j3 in j2:
-                        if j3[1] <= 2:
-                            color_ = [(0, 255, 128), (255, 128, 0)]
-                            cv2.ellipse(self.img_rgb, box=((j3[0], j1[0]), (int(margin * 1.2), int(margin * 0.8)), -30), color=color_[flg], thickness=-1)
+    def marbles(self, score):
+        for paragraph in score.paragraph:
+            for staff in paragraph.staff:
+                margin = staff.margin_staff
+                for i, marble_group in enumerate(staff.marble_list):
+                    if i % 2:
+                        marble_color = (0,255,255)
+                    else:
+                        marble_color = (255, 255, 0)
+
+                    for marble in marble_group:
+                        if marble[1] <= 2:
+                            edge_color = (255, 0, 255)
+                        elif marble[1] == 4:
+                            edge_color = (255, 0, 0)
+                        elif marble[1] == 8:
+                            edge_color = (0, 255, 0)
                         else:
-                            color_ = [(0, 255, 255), (255, 255, 0)]
-                            cv2.ellipse(self.img_rgb, box=((j3[0], j1[0]), (int(margin * 1.2), int(margin * 0.8)), -30), color=color_[flg], thickness=-1)
+                            edge_color = (0, 0, 255)
+                        cv2.ellipse(self.img_rgb, box=((marble[0][0], marble[0][1]), (int(margin * 1.2), int(margin * 0.8)), -30), color=marble_color, thickness=-1)
+                        cv2.ellipse(self.img_rgb, box=((marble[0][0], marble[0][1]), (int(margin * 1.2), int(margin * 0.8)), -30), color=edge_color, thickness=2)
+
+                for i, y in enumerate(staff.group_line_y):
+                    cv2.line(self.img_rgb, (y[0]-2, y[1]), (y[0]+2, y[1]), (255,0,0), thickness=1)
+
+                    # for j3 in j2:
+                    #     if j3[1] <= 2:
+                    #         color_ = [(0, 255, 128), (255, 128, 0)]
+                    #         cv2.ellipse(self.img_rgb, box=((j3[0], j1[0]), (int(margin * 1.2), int(margin * 0.8)), -30), color=color_[flg], thickness=-1)
+                    #     else:
+                    #         color_ = [(0, 255, 255), (255, 255, 0)]
+                    #         cv2.ellipse(self.img_rgb, box=((j3[0], j1[0]), (int(margin * 1.2), int(margin * 0.8)), -30), color=color_[flg], thickness=-1)
 
         cv2.imwrite('data/dst/marble.png', self.img_rgb)
