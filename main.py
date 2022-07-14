@@ -13,7 +13,7 @@ def main():
     prot.export_img(imgs)
     prot.paragraph(paragraph_data, imgs[1])
 
-    score.labeling(pitch)
+    score.labeling()
     prot.marbles(score)
 
 

@@ -29,24 +29,23 @@ class Score:
             exit(1)
 
         para_detector = ParagraphDetector(self.img_thresh_base)
-        paragraph = para_detector.detect_para(staff_list)
-        self.paragraph = [Paragraph(item, idx) for idx, item in enumerate(paragraph)]
+        paragraph, bar = para_detector.detect_para(staff_list)
+        self.paragraph = [Paragraph(item, idx, bar[idx]) for idx, item in enumerate(paragraph)]
 
         return paragraph, pitch
 
 
-    def labeling(self, pitch):
-        self._img2 = self.img_thresh_base.copy()
-        # map(lambda i: i.remove_staffs(self._img2), self._paragraph)
-        [i.remove_staffs(self._img2) for i in self.paragraph]
+    def labeling(self):
+        self.img_line_removed = self.img_thresh_base.copy()
+        for paragraph in self.paragraph:
+            paragraph.remove_staffs(self.img_line_removed)
+            paragraph.remove_bar(self.img_line_removed)
 
         # テスト用出力
-        cv2.imwrite('data/dst/test.png', self._img2)
+        cv2.imwrite('data/dst/test.png', self.img_line_removed)
 
-        self._img3 = self._img2.copy()
+        self._img3 = self.img_line_removed.copy()
         for idx in range(len(self.paragraph)):
             top = 0 if idx == 0 else self.paragraph[idx - 1].bottom
             bottom = self.height if idx == len(self.paragraph) - 1 else self.paragraph[idx + 1].top
-            # result.append(item.search_marble_f1(self._img3, top, bottom))
             self.paragraph[idx].search_marble_f1(self._img3, top, bottom)
-        # return result

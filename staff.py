@@ -184,13 +184,9 @@ class Staff:
         self.marble_list = marbles_on_staff
         self.grouping_marble()
         self.judge_marble_type(img)
-        print(self.marble_list)
-        # return [scan_y, marbles_on_staff, self.margin_staff]
 
     def scan_marble_on_horizon(self, img, w, y, no, mask, mask_circle, mask_circle_center, margin_vr, margin_hr):
         list_marble = []
-        # i = margin_hr
-        # while i < w - margin_hr:
         for i in range(margin_hr, w - margin_hr):
             if img.item(y, i) == 0:
                 for j in range(-2, 3):
@@ -357,4 +353,11 @@ class Staff:
                 count_max = count
 
         return count_max
+
+    def add_bar_info(self, bar_lines):
+        result_bar_list = []
+        for i in range(1, len(bar_lines)):
+            in_bar_list = [group for group in self.marble_list if bar_lines[i - 1]['center'] < group[0][0][0] < bar_lines[i]['center']]
+            result_bar_list.append(in_bar_list)
+        self.marble_list = result_bar_list
 

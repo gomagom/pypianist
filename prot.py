@@ -32,23 +32,24 @@ class Prot:
         for paragraph in score.paragraph:
             for staff in paragraph.staff:
                 margin = staff.margin_staff
-                for i, marble_group in enumerate(staff.marble_list):
-                    if i % 2:
-                        marble_color = (0,255,255)
-                    else:
-                        marble_color = (255, 255, 0)
-
-                    for marble in marble_group:
-                        if marble[1] <= 2:
-                            edge_color = (255, 0, 255)
-                        elif marble[1] == 4:
-                            edge_color = (255, 0, 0)
-                        elif marble[1] == 8:
-                            edge_color = (0, 255, 0)
+                for bar in staff.marble_list:
+                    for i, marble_group in enumerate(bar):
+                        if i % 2:
+                            marble_color = (0,255,255)
                         else:
-                            edge_color = (0, 0, 255)
-                        cv2.ellipse(self.img_rgb, box=((marble[0][0], marble[0][1]), (int(margin * 1.2), int(margin * 0.8)), -30), color=marble_color, thickness=-1)
-                        cv2.ellipse(self.img_rgb, box=((marble[0][0], marble[0][1]), (int(margin * 1.2), int(margin * 0.8)), -30), color=edge_color, thickness=2)
+                            marble_color = (255, 255, 0)
+
+                        for marble in marble_group:
+                            if marble[1] <= 2:
+                                edge_color = (255, 0, 255)
+                            elif marble[1] == 4:
+                                edge_color = (255, 0, 0)
+                            elif marble[1] == 8:
+                                edge_color = (0, 255, 0)
+                            else:
+                                edge_color = (0, 0, 255)
+                            cv2.ellipse(self.img_rgb, box=((marble[0][0], marble[0][1]), (int(margin * 1.2), int(margin * 0.8)), -30), color=marble_color, thickness=-1)
+                            cv2.ellipse(self.img_rgb, box=((marble[0][0], marble[0][1]), (int(margin * 1.2), int(margin * 0.8)), -30), color=edge_color, thickness=2)
 
                 for i, y in enumerate(staff.group_line_y):
                     cv2.line(self.img_rgb, (y[0]-2, y[1]), (y[0]+2, y[1]), (255,0,0), thickness=1)
