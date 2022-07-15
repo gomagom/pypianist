@@ -354,6 +354,9 @@ class Staff:
 
         return count_max
 
+    def find_marble_point(self):
+        pass
+
     def add_bar_info(self, bar_lines):
         result_bar_list = []
         for i in range(1, len(bar_lines)):
