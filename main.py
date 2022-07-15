@@ -3,7 +3,7 @@ from prot import Prot
 
 
 def main():
-    PATH = "./data/Original_Score/0007.jpg"
+    PATH = "./data/Original_Score/0010.jpg"
     score = Score(PATH)
     paragraph_data, pitch = score.detect_lines()
 

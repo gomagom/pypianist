@@ -306,6 +306,8 @@ class Staff:
             for j in range(len(group)):
                 self.marble_list[i][j][1] = marble_type[marble_flag_num]
 
+        self.find_marble_point(img)
+
     def find_marble_line(self, img_cut, x):
         result = []
         h, w = img_cut.shape[:2]
@@ -354,9 +356,23 @@ class Staff:
 
         return count_max
 
-    def find_marble_point(self):
-        pass
+    # 付点を見つける
+    def find_marble_point(self, img):
+        for i, group in enumerate(self.marble_list):
+            target_marble = group[0]
+            if target_marble[2] % 2:
+                target_y = int(target_marble[0][1])
+            else:
+                target_y = int(target_marble[0][1] - self.margin_staff / 2)
 
+            zone_start_x = int(target_marble[0][0] + self.margin_staff * 0.7)
+            zone_end_x = int(zone_start_x + self.margin_staff * 0.4)
+            check_zone = img[target_y:target_y+1, zone_start_x:zone_end_x]
+            if np.count_nonzero(check_zone) != np.size(check_zone):
+                for j in range(len(self.marble_list[i])):
+                    self.marble_list[i][j][1] += 1
+
+    # 音符データを小節毎にグループ化
     def add_bar_info(self, bar_lines):
         result_bar_list = []
         for i in range(1, len(bar_lines)):

@@ -27,7 +27,7 @@ class Prot:
 
         cv2.imwrite('data/dst/paragraph.png', self.img_rgb)
 
-
+    # 符頭の位置を描画
     def marbles(self, score):
         for paragraph in score.paragraph:
             for staff in paragraph.staff:
@@ -40,11 +40,15 @@ class Prot:
                             marble_color = (255, 255, 0)
 
                         for marble in marble_group:
-                            if marble[1] <= 2:
+                            marble_type = marble[1]
+                            if marble_type % 2:
+                                marble_type -= 1
+                                cv2.line(self.img_rgb, (int(marble[0][0]+margin-2), marble[0][1]), (int(marble[0][0]+margin+2), marble[0][1]), (255,0,0), thickness=4)
+                            if marble_type <= 2:
                                 edge_color = (255, 0, 255)
-                            elif marble[1] == 4:
+                            elif marble_type == 4:
                                 edge_color = (255, 0, 0)
-                            elif marble[1] == 8:
+                            elif marble_type == 8:
                                 edge_color = (0, 255, 0)
                             else:
                                 edge_color = (0, 0, 255)
