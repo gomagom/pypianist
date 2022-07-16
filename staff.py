@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from judge_rest_type import *
 
 class Staff:
     def __init__(self, data, no) -> None:
@@ -9,7 +10,7 @@ class Staff:
         self.top = self.staff_lines[0]["center"]
         self.bottom = self.staff_lines[-1]["center"]
         self.marble_list = []
-        self.group_line_y = []
+        # self.group_line_y = []
 
     def margin_ave(self, data):
         margin = [data[i + 1]["center"] - data[i]["center"] for i in range(len(data) - 1)]
@@ -301,7 +302,7 @@ class Staff:
                     return
 
             line_edge_y = self.calc_marble_line_edge_y(img, line_list, start_y, direction)
-            self.group_line_y.append((line_list[len(line_list) // 2], line_edge_y))
+            # self.group_line_y.append((line_list[len(line_list) // 2], line_edge_y))
             marble_flag_num = self.check_marble_flag(img, line_list, line_edge_y, direction)
             for j in range(len(group)):
                 self.marble_list[i][j][1] = marble_type[marble_flag_num]
@@ -365,8 +366,8 @@ class Staff:
             else:
                 target_y = int(target_marble[0][1] - self.margin_staff / 2)
 
-            zone_start_x = int(target_marble[0][0] + self.margin_staff * 0.7)
-            zone_end_x = int(zone_start_x + self.margin_staff * 0.4)
+            zone_start_x = int(target_marble[0][0] + self.margin_staff * 0.8)
+            zone_end_x = int(zone_start_x + self.margin_staff * 0.5)
             check_zone = img[target_y:target_y+1, zone_start_x:zone_end_x]
             if np.count_nonzero(check_zone) != np.size(check_zone):
                 for j in range(len(self.marble_list[i])):

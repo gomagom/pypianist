@@ -3,6 +3,7 @@ from staff_detector import StaffDetector
 from paragraph_detector import ParagraphDetector
 from paragraph import Paragraph
 import cv2
+from judge_rest_type import *
 
 
 class Score:
@@ -10,6 +11,7 @@ class Score:
         self.path = path
         self.img = cv2.cvtColor(cv2.imread(path), cv2.COLOR_BGR2GRAY)
         self.img = correct_tilt(self.img)
+        self.img_line_removed = None
         self.height, self.width = self.img.shape[:2]
         self.img_thresh_base = cvt_thresh(self.img)
         self.paragraph = []
@@ -49,3 +51,9 @@ class Score:
             top = 0 if idx == 0 else self.paragraph[idx - 1].bottom
             bottom = self.height if idx == len(self.paragraph) - 1 else self.paragraph[idx + 1].top
             self.paragraph[idx].search_marble_f1(self._img3, top, bottom)
+
+        insert_rest_info(self)
+
+        for i in range(len(self.paragraph)):
+            self.paragraph[i].add_bar_info()
+            self.paragraph[i].add_all_rest_info()

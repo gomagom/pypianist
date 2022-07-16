@@ -25,5 +25,13 @@ class Paragraph:
             top = top_p if idx == 0 else self.staff[idx - 1].bottom
             bottom = bottom_p if idx == len(self.staff) - 1 else self.staff[idx + 1].top
             self.staff[idx].search_marble_f1(img, top, bottom)
-            self.staff[idx].add_bar_info(self.bar)
-            print(self.staff[idx].marble_list)
+
+    def add_bar_info(self):
+        for i in range(len(self.staff)):
+            self.staff[i].add_bar_info(self.bar)
+
+    def add_all_rest_info(self):
+        for staff in self.staff:
+            for bar in staff.marble_list:
+                if bar == []:
+                    bar.append([[(), -1, None]])

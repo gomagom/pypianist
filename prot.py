@@ -41,10 +41,24 @@ class Prot:
 
                         for marble in marble_group:
                             marble_type = marble[1]
-                            if marble_type % 2:
+                            if marble_type > 0 and marble_type % 2:
                                 marble_type -= 1
                                 cv2.line(self.img_rgb, (int(marble[0][0]+margin-2), marble[0][1]), (int(marble[0][0]+margin+2), marble[0][1]), (255,0,0), thickness=4)
-                            if marble_type <= 2:
+                            if marble_type == -1:
+                                continue
+                            elif marble_type < -1:
+                                cv2.putText(
+                                    self.img_rgb,
+                                    text=str(marble_type),
+                                    org=marble[0],
+                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                    fontScale=1.0,
+                                    color=marble_color,
+                                    thickness=2,
+                                    lineType=cv2.LINE_4
+                                )
+                                continue
+                            elif marble_type == 2:
                                 edge_color = (255, 0, 255)
                             elif marble_type == 4:
                                 edge_color = (255, 0, 0)
@@ -55,8 +69,8 @@ class Prot:
                             cv2.ellipse(self.img_rgb, box=((marble[0][0], marble[0][1]), (int(margin * 1.2), int(margin * 0.8)), -30), color=marble_color, thickness=-1)
                             cv2.ellipse(self.img_rgb, box=((marble[0][0], marble[0][1]), (int(margin * 1.2), int(margin * 0.8)), -30), color=edge_color, thickness=2)
 
-                for i, y in enumerate(staff.group_line_y):
-                    cv2.line(self.img_rgb, (y[0]-2, y[1]), (y[0]+2, y[1]), (255,0,0), thickness=1)
+                # for i, y in enumerate(staff.group_line_y):
+                #     cv2.line(self.img_rgb, (y[0]-2, y[1]), (y[0]+2, y[1]), (255,0,0), thickness=1)
 
                     # for j3 in j2:
                     #     if j3[1] <= 2:
