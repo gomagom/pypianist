@@ -5,7 +5,7 @@ class LineDetector:
     def __init__(self, img):
         self.img = img.copy()
 
-
+    # 画像中から引数で指定した長さ以上の線を検出し、その座標を求める
     def extract_lines_coord(self, img, dire=0, thresh=2):
         if dire == 1:
             img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)

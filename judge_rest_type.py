@@ -8,7 +8,7 @@ os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 
 # 画像中から休符の候補を抽出
 def find_rest(img, score):
-    contours, hierarchy = cv2.findContours(img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     target_contours = []
     for contour in contours:
         area = cv2.contourArea(contour)
@@ -26,12 +26,12 @@ def find_rest(img, score):
                     target_contours.append([contour, paragraph.no, staff.no])
     
     # テスト用出力
-    result_img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
-    for i, contour in enumerate(target_contours):
-        x, y, w, h = cv2.boundingRect(contour[0])
-        part_img = result_img[y:y+h, x:x+w]
-        cv2.imwrite('data/train/img_{:02}.png'.format(i), part_img)
-        result_img = cv2.rectangle(result_img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+    # result_img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
+    # for i, contour in enumerate(target_contours):
+    #     x, y, w, h = cv2.boundingRect(contour[0])
+    #     part_img = result_img[y:y+h, x:x+w]
+    #     cv2.imwrite('data/train/img_{:02}.png'.format(i), part_img)
+    #     result_img = cv2.rectangle(result_img, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
     cv2.imwrite('data/dst/test3.png', result_img)
 
@@ -68,7 +68,7 @@ def generate_rest_info(score):
     img = score.img_line_removed
     rest_list = []
     target_contours = find_rest(img, score)
-    train_data = "./train_data/train_cnn_note.h5"
+    train_data = "./data/train_data/train_cnn_note.h5"
     for contour in target_contours:
         x, y, w, h = cv2.boundingRect(contour[0])
         coord_x = x + w // 2

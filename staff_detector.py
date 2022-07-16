@@ -6,23 +6,23 @@ class StaffDetector(LineDetector):
     def __init__(self, img):
         super().__init__(img)
 
-    
+    # 五線譜を検出
     def detect_staff(self):
         THRESHOLD = 2
         lines = super().extract_lines_coord(self.img, thresh=THRESHOLD)
         individual_lines = super().merge_serial_lines(lines)
         if len(individual_lines) < 5:
             return False, 0 
-        grouped_lines, line_pitch = self.grouping_lines(individual_lines)
+        grouped_lines, _ = self.grouping_lines(individual_lines)
         staff_lines = self.select_isStaff(grouped_lines)
 
         for item in grouped_lines:
             if 5 > len(item) > 1 or len(staff_lines) == 0:
                 return False, 0
 
-        return staff_lines, line_pitch
+        return staff_lines
 
-
+    # 線同士の距離が五線譜の間隔と類似するものをまとめて、五線譜グループとする
     def grouping_lines(self, lines):
         staff_mergin = self.calc_staff_margin(lines)
         groups = []
@@ -54,10 +54,6 @@ class StaffDetector(LineDetector):
         # 最頻の間隔の値の平均を五線譜の線同士の間隔とする
         return np.mean(staff_mergins)
 
-    
+    # 五線譜グループにおいて、線が何本ふくまれているかを返却
     def select_isStaff(self, grouped_lines):
         return [i for i in grouped_lines if len(i) == 5]
-
-if __name__ == "__main__":
-    staff_detector = StaffDetector()
-    staff_detector.calc_staff_margin()

@@ -12,7 +12,7 @@ X = []
 Y = []
 data_set=[]
 for idx, classlabel in enumerate(classes):
-    photos_dir = "../notedata_set/" + classlabel
+    photos_dir = "../data/notedata_set/" + classlabel
     files = glob.glob(photos_dir + "/*.png")
     for i, file in enumerate(files):
         #if i >= 300:    
@@ -29,4 +29,4 @@ X = np.array(X)
 Y = np.array(Y)
 X_train, X_test, y_train, y_test = model_selection.train_test_split(X, Y)
 xy = (X_train, X_test, y_train, y_test)
-np.save("../notedata_set/note.npy", xy)
+np.save("../data/notedata_set/note.npy", xy)

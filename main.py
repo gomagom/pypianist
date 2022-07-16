@@ -7,9 +7,8 @@ import player.player as pl
 def main():
     PATH = "./data/Original_Score/amefuri-1.png"
     score = Score(PATH)
-    paragraph_data, pitch = score.detect_lines()
+    paragraph_data = score.detect_lines()
 
-    print(paragraph_data)
     score.labeling()
     imgs = [score.img, score.img_thresh_base, score.img_line_removed]
 

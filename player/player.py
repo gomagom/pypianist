@@ -26,7 +26,7 @@ def synthesizer(file_name):
 # CSVファイルの読み込み
 def import_data(file_name):
     try:
-        with open("./data/dst/" + file_name + ".csv", "r", encoding="utf_8") as file:
+        with open("./data/scores/" + file_name + ".csv", "r", encoding="utf_8") as file:
             reader = csv.reader(file, skipinitialspace=True)
             data = [row for row in reader][1:]
     except FileNotFoundError as e:

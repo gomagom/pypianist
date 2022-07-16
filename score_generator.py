@@ -1,4 +1,3 @@
-from numpy import shape
 import pandas as pd
 
 # 音の長さを4/4拍子中の割合として分数で計算し、その逆数を返却(見やすさのため)
@@ -60,7 +59,7 @@ def data_shaping(score):
     return score_data
 
 # csv形式で譜面を出力
-def export_csv(score, path):
+def export_csv(score, file_name):
     shaped_score_data = data_shaping(score)
     score_df = pd.DataFrame(shaped_score_data, columns=['トラック', 'ユニット', '音階', '長さ', 'ベロシティ'])
-    score_df.to_csv("./data/dst/" + path + ".csv", index=False)
+    score_df.to_csv("./data/scores/" + file_name + ".csv", index=False)

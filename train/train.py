@@ -39,7 +39,7 @@ def model_train(X, y):
     model.fit(X, y, batch_size=64, epochs=20)
 
     # モデルの保存
-    model.save("../train_data/train_cnn_note.h5")
+    model.save("../data/train_data/train_cnn_note.h5")
     return model
 
 def model_eval(model, X, y):
@@ -50,7 +50,7 @@ def model_eval(model, X, y):
     
 classes = ["8kyu", "4kyu", "flatto"]
 num_classes = len(classes)
-X_train, X_test, y_train, y_test = np.load("../notedata_set/note.npy", allow_pickle=True)
+X_train, X_test, y_train, y_test = np.load("../data/notedata_set/note.npy", allow_pickle=True)
 X_train = X_train.astype("float") / 256
 X_test = X_test.astype("float") / 256
 y_train = np_utils.to_categorical(y_train, num_classes)

@@ -10,14 +10,14 @@ class Staff:
         self.top = self.staff_lines[0]["center"]
         self.bottom = self.staff_lines[-1]["center"]
         self.marble_list = []
-        # self.group_line_y = []
 
+    # 五線譜の線同士の距離の平均を算出
     def margin_ave(self, data):
         margin = [data[i + 1]["center"] - data[i]["center"] for i in range(len(data) - 1)]
         margin_ave = sum(margin) / len(margin)
         return margin_ave, margin
 
-
+    # 五線譜を画像から消去
     def remove_staff(self, img):
         _, w = img.shape[:2]
         POINT = w // 2
@@ -42,90 +42,66 @@ class Staff:
                 x = item2[0]
                 img = cv2.line(img, (x, top), (x, bottom), 255, 1)
 
-
+    # 五線譜の画素群を取得。斜め方向にも探索することで線のガタつきにも対応
     def search_staff(self, data, img, x1, x2, min_length):
         OVERFLOW = 1
         ZONE_WIDTH_PART = int((data["weight"] - 1) / 2 + OVERFLOW)
         LIMIT_MARGIN = 3
         limits = [int(data["center"] - ZONE_WIDTH_PART - LIMIT_MARGIN), int(data["center"] + ZONE_WIDTH_PART + LIMIT_MARGIN)]
-        lists = []
-        tmp = []
+        staff_line_lists = []
+        staff_candidate = []
 
-        py = t_py = data["center"]
+        center_y = center_y_candidate = data["center"]
         for x in range(x1, x2, 1 if x2 - x1 > 0 else -1):
-            middle_judge, middle_count = self.judge_alone(img, x, py, ZONE_WIDTH_PART, limits)
-            upper_judge, upper_count = self.judge_alone(img, x, py - 1, ZONE_WIDTH_PART, limits)
-            lower_judge, lower_count = self.judge_alone(img, x, py + 1, ZONE_WIDTH_PART, limits)
+            middle_judge, middle_count = self.judge_alone(img, x, center_y, ZONE_WIDTH_PART, limits)
+            upper_judge, upper_count = self.judge_alone(img, x, center_y - 1, ZONE_WIDTH_PART, limits)
+            lower_judge, lower_count = self.judge_alone(img, x, center_y + 1, ZONE_WIDTH_PART, limits)
 
-            if not len(tmp):
-                t_py = py
+            if not len(staff_candidate):
+                center_y_candidate = center_y
 
             if middle_judge:
                 if upper_judge and lower_judge and upper_count > middle_count and lower_count > middle_count:
                     if upper_count > lower_count:
-                        py -= 1
+                        center_y -= 1
                     else:
-                        py += 1
+                        center_y += 1
                 elif upper_judge and upper_count > middle_count:
-                    py -= 1
+                    center_y -= 1
                 elif lower_judge and lower_count > middle_count:
-                    py += 1
+                    center_y += 1
                 else:
                     pass
             else:
                 if upper_judge and lower_judge:
                     if upper_count > lower_count:
-                        py -= 1
+                        center_y -= 1
                     else:
-                        py += 1
+                        center_y += 1
                 elif upper_judge:
-                    py -= 1
+                    center_y -= 1
                 elif lower_judge:
-                    py += 1
+                    center_y += 1
                 else:
-                    if len(tmp) > min_length:
-                        lists.extend(tmp)
+                    if len(staff_candidate) > min_length:
+                        staff_line_lists.extend(staff_candidate)
                     else:
-                        py = t_py
-                    tmp.clear()
+                        center_y = center_y_candidate
+                    staff_candidate.clear()
                     continue
 
-            tmp.append((x, py))
+            staff_candidate.append((x, center_y))
 
-        if len(tmp) > min_length:
-            lists.extend(tmp)
+        if len(staff_candidate) > min_length:
+            staff_line_lists.extend(staff_candidate)
 
-        return lists
+        return staff_line_lists
 
-
-    # def remove_bar(self, img):
-    #     _, w = img.shape[:2]
-    #     POINT = w // 2
-    #     OVERFLOW = 1
-    #     MIN_LENGTH = w // 140
-    #     middle_x1, middle_x2 = w * 2 // 5, w * 3 // 5
-    #     crop_x1, crop_x2 = POINT - MIN_LENGTH * 4, POINT + MIN_LENGTH * 4
-    #     for item in self.staff_lines:
-    #         lists = []
-    #         right_list = self.search_staff(item, img, POINT, w, MIN_LENGTH)
-    #         left_list = self.search_staff(item, img, POINT, 0, MIN_LENGTH)
-    #         middle_list = self.search_staff(item, img, middle_x1, middle_x2, MIN_LENGTH)
-
-    #         lists = left_list + right_list
-    #         lists = [i for i in lists if i[0] < crop_x1 or crop_x2 < i[0]]
-    #         middle_list = [i for i in middle_list if crop_x1 <= i[0] <= crop_x2]
-    #         lists.extend(middle_list)
-
-    #         for item2 in lists:
-    #             top = int(item2[1] - ((item[1] - 1) / 2 + OVERFLOW))
-    #             bottom = int(item2[1] + ((item[1] - 1) / 2 + OVERFLOW))
-    #             x = item2[0]
-    #             img = cv2.line(img, (x, top), (x, bottom), 255, 1)
-
-
-    def judge_alone(self, img, x, py, width, limits):
-        top_out = int(py - width - 1)
-        bottom_out = int(py + width + 1)
+    # 五線譜とする候補のある範囲において、他のモノと接触しているかどうかを判定
+    # 接触していない部分のみを消去する
+    def judge_alone(self, img, x, center_y, width, limits):
+        top_out = int(center_y - width - 1)
+        bottom_out = int(center_y + width + 1)
         if top_out >= limits[0] and bottom_out <= limits[1] and img[top_out, x] == 255 and img[bottom_out, x] == 255:
             judge = True
         else:
@@ -133,13 +109,13 @@ class Staff:
 
         count = 0
         basic_point = width + 1
-        for i in range(int(py - width), int(py + width + 1)):
+        for i in range(int(center_y - width), int(center_y + width + 1)):
             if img[i, x] == 0:
-                count += (basic_point - abs(i - py)) * 2
+                count += (basic_point - abs(i - center_y)) * 2
 
         return judge, count
 
-
+    # 塗りつぶしと白抜きの符頭を検出
     def search_marble_f1(self, img, top, bottom):
         scan_y = []
         for idx, item in enumerate(self.staff_lines):
@@ -161,11 +137,10 @@ class Staff:
         scan_y = scan_y_top + scan_y + scan_y_bottom
         scan_y = [(round(i[0]), i[1]) for i in scan_y]
         
-        h, w = img.shape[:2]
+        _, w = img.shape[:2]
         mask_margin_v = int(self.margin_staff) if int(self.margin_staff) % 2 else int(self.margin_staff) + 1
         mask_margin_h = int(self.margin_staff * 1.5) if int(self.margin_staff * 1.5) % 2 else int(self.margin_staff * 1.5) + 1
 
-        # mask_margin -= 2
         mask = np.zeros((mask_margin_v, mask_margin_h), dtype=np.uint8)
         margin_vr = mask_margin_v // 2
         margin_hr = mask_margin_h // 2
@@ -186,6 +161,7 @@ class Staff:
         self.grouping_marble()
         self.judge_marble_type(img)
 
+    # 五線譜にそって、符頭が無いか領域をマスク処理していく
     def scan_marble_on_horizon(self, img, w, y, no, mask, mask_circle, mask_circle_center, margin_vr, margin_hr):
         list_marble = []
         for i in range(margin_hr, w - margin_hr):
@@ -215,7 +191,7 @@ class Staff:
 
         return list_marble
 
-
+    # 五線譜外の符頭候補が、この五線譜グループの所属かどうかを判定
     def concrete_extend_marble(self, img, x, no):
         if 0 <= no <= 8:
             return True 
@@ -236,6 +212,7 @@ class Staff:
 
         return True
 
+    # 同一の符頭に対して重複して検知された情報を整理
     def combine_duplicate_marble(self, marble_list, margin_vr):
         duplicate_list = []
         result_list = []
@@ -279,6 +256,7 @@ class Staff:
         grouped_marbel_list = sorted(grouped_marbel_list, key=lambda x: x[0][0])
         self.marble_list = grouped_marbel_list
 
+    # 音符の種類を判別
     def judge_marble_type(self, img):
         judge_area_width = int(self.margin_staff * 1.5)
         judge_area_height = int(self.margin_staff * 1.5)
@@ -302,13 +280,13 @@ class Staff:
                     return
 
             line_edge_y = self.calc_marble_line_edge_y(img, line_list, start_y, direction)
-            # self.group_line_y.append((line_list[len(line_list) // 2], line_edge_y))
             marble_flag_num = self.check_marble_flag(img, line_list, line_edge_y, direction)
             for j in range(len(group)):
                 self.marble_list[i][j][1] = marble_type[marble_flag_num]
 
         self.find_marble_point(img)
 
+    # 符頭から伸びる縦線を検出
     def find_marble_line(self, img_cut, x):
         result = []
         h, w = img_cut.shape[:2]
@@ -319,6 +297,7 @@ class Staff:
 
         return result
 
+    # 符頭から伸びる縦線の端のy座標を取得
     def calc_marble_line_edge_y(self, img, line_list, y, direction=1):
         start_line_x = line_list[0]
         line_edge_y = y
@@ -331,6 +310,7 @@ class Staff:
         
         return line_edge_y
 
+    # 音符から旗が伸びているか、伸びている場合は何本あるかを確認
     def check_marble_flag(self, img, line_list, line_edge_y, direction=1):
         zone_height = int(self.margin_staff * 2)
         lines_pair = [line_list[0] - 3, line_list[-1] + 3]
@@ -357,7 +337,7 @@ class Staff:
 
         return count_max
 
-    # 付点を見つける
+    # 符頭の右側を探索し、付点を見つける
     def find_marble_point(self, img):
         for i, group in enumerate(self.marble_list):
             target_marble = group[0]

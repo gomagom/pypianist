@@ -3,10 +3,12 @@ import cv2
 import numpy as np
 from scipy import ndimage
 
+# 引数で指定した閾値で画像を2値化
 def cvt_thresh(img, thresh=128):
     _, result = cv2.threshold(img, thresh, 255, cv2.THRESH_BINARY)
     return result
 
+# 画像の傾きを補正
 def correct_tilt(img, thresh=198):
     img_thresh = cvt_thresh(img, thresh)
     reverse_img = cv2.bitwise_not(img_thresh)

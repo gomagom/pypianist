@@ -16,12 +16,13 @@ class Score:
         self.img_thresh_base = cvt_thresh(self.img)
         self.paragraph = []
 
+    # 五線譜、段落、小節線などを読み取り、位置を確定させる
     def detect_lines(self):
         thresh_current = 128
         STEP = 16
         while thresh_current < 255:
             staff_detector = StaffDetector(self.img_thresh_base)
-            staff_list, pitch = staff_detector.detect_staff()
+            staff_list = staff_detector.detect_staff()
             if staff_list:
                 break
             thresh_current += STEP
@@ -34,9 +35,9 @@ class Score:
         paragraph, bar = para_detector.detect_para(staff_list)
         self.paragraph = [Paragraph(item, idx, bar[idx]) for idx, item in enumerate(paragraph)]
 
-        return paragraph, pitch
+        return paragraph
 
-
+    # 画像中の物体に対して種類を判別し、データに加える
     def labeling(self):
         self.img_line_removed = self.img_thresh_base.copy()
         for paragraph in self.paragraph:
@@ -44,7 +45,7 @@ class Score:
             paragraph.remove_bar(self.img_line_removed)
 
         # テスト用出力
-        cv2.imwrite('data/dst/test.png', self.img_line_removed)
+        # cv2.imwrite('data/dst/test.png', self.img_line_removed)
 
         self._img3 = self.img_line_removed.copy()
         for idx in range(len(self.paragraph)):

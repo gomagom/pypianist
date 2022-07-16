@@ -26,10 +26,12 @@ class Paragraph:
             bottom = bottom_p if idx == len(self.staff) - 1 else self.staff[idx + 1].top
             self.staff[idx].search_marble_f1(img, top, bottom)
 
+    # 小節情報を譜面データに対して追加
     def add_bar_info(self):
         for i in range(len(self.staff)):
             self.staff[i].add_bar_info(self.bar)
 
+    # 全休符情報を譜面データに対して追加
     def add_all_rest_info(self):
         for staff in self.staff:
             for bar in staff.marble_list:

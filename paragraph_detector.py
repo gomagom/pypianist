@@ -6,6 +6,7 @@ class ParagraphDetector:
         self.img = img
         self.height, self.width = self.img.shape[:2]
 
+    # 段落を見分ける
     def detect_para(self, staff):
         para_data = []
         bar_data = []

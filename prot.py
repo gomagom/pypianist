@@ -9,7 +9,7 @@ class Prot:
         for i, img in enumerate(imgs):
             cv2.imwrite('data/dst/img_{:02}.png'.format(i), img)
 
-
+    # 段落ごとの五線譜を描画
     def paragraph(self, data, img_thresh):
         img = img_thresh.copy()
         _, w = img.shape[:2]
@@ -68,16 +68,5 @@ class Prot:
                                 edge_color = (0, 0, 255)
                             cv2.ellipse(self.img_rgb, box=((marble[0][0], marble[0][1]), (int(margin * 1.2), int(margin * 0.8)), -30), color=marble_color, thickness=-1)
                             cv2.ellipse(self.img_rgb, box=((marble[0][0], marble[0][1]), (int(margin * 1.2), int(margin * 0.8)), -30), color=edge_color, thickness=2)
-
-                # for i, y in enumerate(staff.group_line_y):
-                #     cv2.line(self.img_rgb, (y[0]-2, y[1]), (y[0]+2, y[1]), (255,0,0), thickness=1)
-
-                    # for j3 in j2:
-                    #     if j3[1] <= 2:
-                    #         color_ = [(0, 255, 128), (255, 128, 0)]
-                    #         cv2.ellipse(self.img_rgb, box=((j3[0], j1[0]), (int(margin * 1.2), int(margin * 0.8)), -30), color=color_[flg], thickness=-1)
-                    #     else:
-                    #         color_ = [(0, 255, 255), (255, 255, 0)]
-                    #         cv2.ellipse(self.img_rgb, box=((j3[0], j1[0]), (int(margin * 1.2), int(margin * 0.8)), -30), color=color_[flg], thickness=-1)
 
         cv2.imwrite('data/dst/marble.png', self.img_rgb)
