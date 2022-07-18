@@ -26,13 +26,12 @@ def find_rest(img, score):
                     target_contours.append([contour, paragraph.no, staff.no])
     
     # テスト用出力
-    # result_img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
-    # for i, contour in enumerate(target_contours):
-    #     x, y, w, h = cv2.boundingRect(contour[0])
-    #     part_img = result_img[y:y+h, x:x+w]
-    #     cv2.imwrite('data/train/img_{:02}.png'.format(i), part_img)
-    #     result_img = cv2.rectangle(result_img, (x, y), (x + w, y + h), (0, 255, 0), 2)
-
+    result_img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
+    for i, contour in enumerate(target_contours):
+        x, y, w, h = cv2.boundingRect(contour[0])
+        part_img = result_img[y:y+h, x:x+w]
+        cv2.imwrite('data/train/img_{:02}.png'.format(i), part_img)
+        result_img = cv2.rectangle(result_img, (x, y), (x + w, y + h), (0, 255, 0), 2)
     cv2.imwrite('data/dst/test3.png', result_img)
 
     return target_contours
@@ -86,9 +85,12 @@ def insert_rest_info(score):
         target_staff = score.paragraph[rest[1]].staff[rest[2]]
         marble_list = target_staff.marble_list
         middle_y = int(target_staff.top + (target_staff.bottom - target_staff.top) // 2)
+        insert_flg = False
+        insert_info = [[(rest[3], middle_y), rest[0], None]]
         for i, group in enumerate(marble_list):
             if group[0][0][0] > rest[3]:
-                insert_info = [[(rest[3], middle_y), rest[0], None]]
                 marble_list.insert(i, insert_info)
+                insert_flg = True
                 break
-
+        if insert_flg == False:
+            marble_list.append(insert_info)

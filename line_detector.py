@@ -15,6 +15,14 @@ class LineDetector:
         for r in range(h):
             line_list.append(self.count_dot_series(img, r, w))
 
+        # テスト用出力
+        if dire == 0:
+            blank = np.zeros((h, w, 3))
+            blank += 255
+            for i, item in enumerate(line_list):
+                cv2.line(blank, (0, i), (item, i), (0,0,255), thickness=1)
+            cv2.imwrite('./data/dst/run-length.png', blank)
+
         # 線の長さが画像の幅の半分以上であれば取得したい線とし、その座標をリストにまとめる
         coord_list = [index for index, item in enumerate(line_list) if item >= w // thresh]
 

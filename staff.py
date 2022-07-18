@@ -152,6 +152,7 @@ class Staff:
         mask_circle_center = cv2.line(mask_circle_center, (0, margin_hr // 2), (margin_vr, margin_hr // 2), 0, 1)
         cv2.imwrite('data/dst/test2.png', mask)
         cv2.imwrite('data/dst/test4.png', mask_circle)
+        cv2.imwrite('data/dst/test5.png', mask_circle_center)
 
         marbles_on_staff = []
         for y in scan_y:

@@ -35,7 +35,7 @@ class Prot:
                 for bar in staff.marble_list:
                     for i, marble_group in enumerate(bar):
                         if i % 2:
-                            marble_color = (0,255,255)
+                            marble_color = (255,0,255)
                         else:
                             marble_color = (255, 255, 0)
 

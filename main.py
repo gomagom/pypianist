@@ -2,11 +2,13 @@ from score import Score
 from prot import Prot
 import score_generator as sg
 import player.player as pl
+import sys
+import re
 
-
-def main():
-    PATH = "./data/Original_Score/amefuri-1.png"
-    score = Score(PATH)
+def main(path):
+    # PATH = "./data/Original_Score/amefuri-1.png"
+    file_name = re.sub(r"^.*[/\\]|\.[^.]+", "", path)
+    score = Score(path)
     paragraph_data = score.detect_lines()
 
     score.labeling()
@@ -17,9 +19,12 @@ def main():
     prot.paragraph(paragraph_data, imgs[1])
     prot.marbles(score)
 
-    EXPORT_NAME = "score"
-    sg.export_csv(score, EXPORT_NAME)
-    pl.synthesizer(EXPORT_NAME)
+    sg.export_csv(score, file_name)
+    pl.synthesizer(file_name)
 
 if __name__ == '__main__':
-    main()
+    args = sys.argv
+    if 2 <= len(args):
+        main(args[1])
+    else:
+        print("引数が不足（入力ファイルパスを指定してください）")
