@@ -1,6 +1,6 @@
-import tensorflow.keras
+import keras
 import numpy as np
-from tensorflow.keras.models import load_model
+from keras.models import load_model
 import cv2
 import os
 import warnings
