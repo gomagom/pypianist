@@ -151,9 +151,10 @@ class Staff:
         mask_circle_center = np.zeros((mask_margin_v, mask_margin_h), dtype=np.uint8)
         cv2.ellipse(mask_circle_center, box=((margin_hr, margin_vr), (int(mask_margin_v * 1), int(mask_margin_v * 0.4)), -40), color=255, thickness=-1)
         mask_circle_center = cv2.line(mask_circle_center, (0, margin_hr // 2), (margin_vr, margin_hr // 2), 0, 1)
-        cv2.imwrite('data/dst/test2.png', mask)
-        cv2.imwrite('data/dst/test4.png', mask_circle)
-        cv2.imwrite('data/dst/test5.png', mask_circle_center)
+        # テスト用出力
+        # cv2.imwrite('data/dst/test2.png', mask)
+        # cv2.imwrite('data/dst/test4.png', mask_circle)
+        # cv2.imwrite('data/dst/test5.png', mask_circle_center)
 
         marbles_on_staff = []
         for y in scan_y:
