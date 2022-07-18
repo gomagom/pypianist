@@ -5,7 +5,7 @@ from paragraph import Paragraph
 import cv2
 from judge_rest_type import *
 
-
+# 譜面クラス
 class Score:
     def __init__(self, path):
         self.path = path

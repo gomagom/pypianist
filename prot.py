@@ -1,10 +1,11 @@
 import cv2
 
+# 描画関連
 class Prot:
     def __init__(self) -> None:
         pass
 
-
+    # テスト用出力
     def export_img(self, imgs):
         for i, img in enumerate(imgs):
             cv2.imwrite('data/dst/img_{:02}.png'.format(i), img)

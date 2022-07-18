@@ -1,12 +1,12 @@
 from line_detector import LineDetector
 import numpy as np
 
-
+# 五線検出器
 class StaffDetector(LineDetector):
     def __init__(self, img):
         super().__init__(img)
 
-    # 五線譜を検出
+    # 五線を検出
     def detect_staff(self):
         THRESHOLD = 2
         lines = super().extract_lines_coord(self.img, thresh=THRESHOLD)
@@ -22,13 +22,13 @@ class StaffDetector(LineDetector):
 
         return staff_lines
 
-    # 線同士の距離が五線譜の間隔と類似するものをまとめて、五線譜グループとする
+    # 線同士の距離が五線の間隔と類似するものをまとめて、五線グループとする
     def grouping_lines(self, lines):
         staff_mergin = self.calc_staff_margin(lines)
         groups = []
         line_group = [lines[0]]
 
-        LINE_PITCH_DIFF = 2     # 五線譜の間隔とする基準値からの許容範囲
+        LINE_PITCH_DIFF = 2     # 五線の間隔とする基準値からの許容範囲
         for i in range(1, len(lines)):
             if abs(lines[i]["center"] - lines[i - 1]["center"] - staff_mergin) <= LINE_PITCH_DIFF:
                 line_group.append(lines[i])
@@ -39,7 +39,7 @@ class StaffDetector(LineDetector):
 
         return groups, staff_mergin
 
-    # 五線譜の線同士の間隔を計算する
+    # 五線の線同士の間隔を計算する
     def calc_staff_margin(self, lines):
         mergins = {}
         # 線同士の間隔をキーとする辞書を作成
@@ -54,6 +54,6 @@ class StaffDetector(LineDetector):
         # 最頻の間隔の値の平均を五線譜の線同士の間隔とする
         return np.mean(staff_mergins)
 
-    # 五線譜グループにおいて、線が何本ふくまれているかを返却
+    # 五線グループにおいて、線が何本ふくまれているかを返却
     def select_isStaff(self, grouped_lines):
         return [i for i in grouped_lines if len(i) == 5]

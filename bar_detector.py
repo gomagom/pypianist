@@ -1,5 +1,6 @@
 from line_detector import LineDetector
 
+# 小節検出器
 class BarDetector(LineDetector):
     def __init__(self, img):
         super().__init__(img)

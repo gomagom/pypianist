@@ -5,6 +5,7 @@ import player.player as pl
 import sys
 import re
 
+# アプリを動かすためのメイン関数
 def main(path):
     # PATH = "./data/Original_Score/amefuri-1.png"
     file_name = re.sub(r"^.*[/\\]|\.[^.]+", "", path)

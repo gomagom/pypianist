@@ -1,6 +1,6 @@
 from bar_detector import BarDetector
-import cv2
 
+# 段落検出器
 class ParagraphDetector:
     def __init__(self, img):
         self.img = img

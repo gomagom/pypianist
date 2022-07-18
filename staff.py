@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 from judge_rest_type import *
 
+# 五線クラス
 class Staff:
     def __init__(self, data, no) -> None:
         self.no = no
@@ -11,13 +12,13 @@ class Staff:
         self.bottom = self.staff_lines[-1]["center"]
         self.marble_list = []
 
-    # 五線譜の線同士の距離の平均を算出
+    # 五線の線同士の距離の平均を算出
     def margin_ave(self, data):
         margin = [data[i + 1]["center"] - data[i]["center"] for i in range(len(data) - 1)]
         margin_ave = sum(margin) / len(margin)
         return margin_ave, margin
 
-    # 五線譜を画像から消去
+    # 五線を画像から消去
     def remove_staff(self, img):
         _, w = img.shape[:2]
         POINT = w // 2
@@ -42,7 +43,7 @@ class Staff:
                 x = item2[0]
                 img = cv2.line(img, (x, top), (x, bottom), 255, 1)
 
-    # 五線譜の画素群を取得。斜め方向にも探索することで線のガタつきにも対応
+    # 五線の画素群を取得。斜め方向にも探索することで線のガタつきにも対応
     def search_staff(self, data, img, x1, x2, min_length):
         OVERFLOW = 1
         ZONE_WIDTH_PART = int((data["weight"] - 1) / 2 + OVERFLOW)
@@ -97,7 +98,7 @@ class Staff:
 
         return staff_line_lists
 
-    # 五線譜とする候補のある範囲において、他のモノと接触しているかどうかを判定
+    # 五線とする候補のある範囲において、他のモノと接触しているかどうかを判定
     # 接触していない部分のみを消去する
     def judge_alone(self, img, x, center_y, width, limits):
         top_out = int(center_y - width - 1)
@@ -162,7 +163,7 @@ class Staff:
         self.grouping_marble()
         self.judge_marble_type(img)
 
-    # 五線譜にそって、符頭が無いか領域をマスク処理していく
+    # 五線にそって、符頭が無いか領域をマスク処理していく
     def scan_marble_on_horizon(self, img, w, y, no, mask, mask_circle, mask_circle_center, margin_vr, margin_hr):
         list_marble = []
         for i in range(margin_hr, w - margin_hr):
@@ -192,7 +193,7 @@ class Staff:
 
         return list_marble
 
-    # 五線譜外の符頭候補が、この五線譜グループの所属かどうかを判定
+    # 五線外の符頭候補が、この五線譜グループの所属かどうかを判定
     def concrete_extend_marble(self, img, x, no):
         if 0 <= no <= 8:
             return True 

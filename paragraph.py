@@ -1,6 +1,7 @@
 from staff import Staff
 import cv2
 
+# 段落クラス
 class Paragraph:
     def __init__(self, data, no, bar) -> None:
         self.staff_qty = len(data)

@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 
+# 直線検出器
 class LineDetector:
     def __init__(self, img):
         self.img = img.copy()
